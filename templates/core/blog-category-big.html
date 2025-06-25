@@ -1,0 +1,120 @@
+﻿{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-content mb-50">
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
+                <div class="shop-product-fillter mb-50">
+                    <div class="totall-product">
+                        <h2>
+                            <img class="w-36px mr-10" 
+                                 src="{% static 'assets/imgs/theme/icons/category-1.svg' %}" 
+                                 alt="Recipe Category Icon"/>
+                            Recipes Articles
+                        </h2>
+                    </div>
+                    <div class="sort-by-product-area">
+                        <!-- Sorting controls remain unchanged -->
+                    </div>
+                </div>
+                <div class="loop-grid loop-big">
+                    <div class="row">
+                        <!-- Article 1 -->
+                        <article class="first-post mb-30 hover-up animated">
+                            <div class="position-relative overflow-hidden">
+                                <span class="top-left-icon"><i class="fi-rs-headphones"></i></span>
+                                <div class="post-thumb border-radius-15">
+                                    <a href="blog-post-right.html">
+                                        <img class="border-radius-15" 
+                                             src="{% static 'assets/imgs/blog/blog-16.png' %}" 
+                                             alt="Molten Chocolate Cake"/>
+                                    </a>
+                                </div>
+                                <div class="cooking-tips mt-20">
+                                    <p class="font-sm text-muted">
+                                        🧑🍳 Pro Tip: Always use high-quality dark chocolate (70% cocoa) for richer flavor. 
+                                        <a href="https://www.bonappetit.com/recipe/molten-chocolate-cake" 
+                                           target="_blank" 
+                                           class="text-brand" 
+                                           rel="noopener noreferrer">
+                                            Learn professional techniques from Bon Appétit
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="entry-content">
+                                <!-- Content remains same -->
+                            </div>
+                        </article>
+
+                        <!-- Article 2 -->
+                        <article class="first-post mb-30 hover-up animated">
+                            <div class="position-relative overflow-hidden">
+                                <span class="top-left-icon"><i class="fi-rs-headphones"></i></span>
+                                <div class="post-thumb border-radius-15">
+                                    <a href="blog-post-right.html">
+                                        <img class="border-radius-15" 
+                                             src="{% static 'assets/imgs/blog/blog-17.png' %}" 
+                                             alt="Sticky Ginger Rice"/>
+                                    </a>
+                                </div>
+                                <div class="cooking-tips mt-20">
+                                    <p class="font-sm text-muted">
+                                        🌿 Did You Know? Fresh ginger can be stored in the freezer for up to 3 months. 
+                                        <a href="https://www.bbcgoodfood.com/howto/guide/ingredient-focus-ginger"
+                                           target="_blank"
+                                           class="text-brand"
+                                           rel="noopener noreferrer">
+                                            BBC Good Food's complete ginger guide
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="entry-content">
+                                <!-- Content remains same -->
+                            </div>
+                        </article>
+
+                        <!-- Article 3 -->
+                        <article class="first-post mb-30 hover-up animated">
+                            <div class="position-relative overflow-hidden">
+                                <span class="top-left-icon"><i class="fi-rs-headphones"></i></span>
+                                <div class="post-thumb border-radius-15">
+                                    <a href="blog-post-right.html">
+                                        <img class="border-radius-15" 
+                                             src="{% static 'assets/imgs/blog/blog-18.png' %}" 
+                                             alt="Harissa Chickpeas"/>
+                                    </a>
+                                </div>
+                                <div class="cooking-tips mt-20">
+                                    <p class="font-sm text-muted">
+                                        🔥 Spice Hack: Adjust harissa quantity based on your heat preference. 
+                                        <a href="https://www.seriouseats.com/the-science-of-spicy-food"
+                                           target="_blank"
+                                           class="text-brand"
+                                           rel="noopener noreferrer">
+                                            Serious Eats' science of spicy foods
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="entry-content">
+                                <!-- Content remains same -->
+                            </div>
+                        </article>
+                    </div>
+                </div>
+                <!-- Pagination -->
+                <div class="pagination-area mt-15 mb-sm-5 mb-lg-0">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-start">
+                            <!-- Pagination items remain same -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
