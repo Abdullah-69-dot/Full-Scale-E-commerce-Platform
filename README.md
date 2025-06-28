@@ -1,4 +1,4 @@
-# Graduation Project - E-commerce Platform
+# E-commerce Platform
 
 ## Overview
 
