@@ -25,6 +25,10 @@ from django.db.models import Count, Avg
 from django.db.models.functions import ExtractMonth
 from django.db.models import Sum ,F
 from .utils import get_recommended_products_for_user
+import sys
+sys.path.append(r'D:\New folder (42)\graduation-project-main\venv2\Lib\site-packages')
+from textblob import TextBlob
+
 
 
 def dashboard_view(request):
@@ -105,11 +109,23 @@ def blog_category(request):
     return render(request, 'core/blog-category-big.html')
 def product_list_view(request):
     products = Product.objects.filter( product_status='published')
-
+    tags = Tag.objects.all()
+    
     context = {
         'products' : products,
+        'tags' : tags,
     }
     return render(request, 'core/product-list.html', context)
+
+
+def tag_list(request, tag_slug=None):
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    products = Product.objects.filter(tags__in=[tag])
+
+    return render(request, "core/tag.html", {
+        "products": products,
+        "tag": tag
+    })
 
 
 def category_list_view(request):
@@ -170,11 +186,42 @@ def product_detail_view(request, pid):
 
     make_review = True
 
-    if request.user.is_authenticated:
-        user_review_count = ProductReview.objects.filter(user=request.user, product=product).count()
+    total_reviews = ProductReview.objects.filter(product=product).count()
+    positive_reviews = ProductReview.objects.filter(product=product, polarity__gt=0.1).count()
 
-        if user_review_count > 0:
-            make_review = False
+    if total_reviews > 0:
+        positive_percentage = (positive_reviews / total_reviews) * 100
+    else:
+        positive_percentage = 0
+
+    # if request.user.is_authenticated:
+    #     user_review_count = ProductReview.objects.filter(user=request.user, product=product).count()
+
+    #     if user_review_count > 0:
+    #         make_review = False
+
+    # Count each rating for the product
+    rating_counts = ProductReview.objects.filter(product=product).values('rating').annotate(count=Count('rating'))
+
+    # Build a dictionary for easier access
+    rating_distribution = {star: 0 for star in range(1, 6)}  # 1 to 5
+    total_reviews = ProductReview.objects.filter(product=product).count()
+
+    for entry in rating_counts:
+        rating_distribution[entry['rating']] = entry['count']
+
+    # Convert to percentage
+    rating_percentages = {}
+    for star, count in rating_distribution.items():
+        if total_reviews > 0:
+            rating_percentages[str(star)] = round((count / total_reviews) * 100, 1)
+        else:
+            rating_percentages[str(star)] = 0
+    
+    star_percent = 0
+
+    if average_rating["rating"]:
+        star_percent = round((average_rating["rating"] / 5) * 100, 1)
 
 
     p_image = product.p_images.all()
@@ -187,6 +234,9 @@ def product_detail_view(request, pid):
         "average_rating": average_rating,
         "reviews": reviews,
         "products": products,
+        "positive_percentage": round(positive_percentage, 2),
+        "rating_percentages": rating_percentages,
+        "star_percent": star_percent,
     }
     return render(request, "core/product-detail.html", context)
 
@@ -207,33 +257,51 @@ def tag_list(request, tag_slug=None):
     return render(request, "core/tag.html", context)
 
 
-
 def ajax_add_review(request, pid):
     product = Product.objects.get(pk=pid)
     user = request.user
+    review_text = request.POST['review']
+    rating = request.POST['rating']
 
+    # Sentiment analysis
+    sentiment = TextBlob(review_text).sentiment.polarity
+    if sentiment > 0.1:
+        sentiment_label = "Positive"
+    elif sentiment < -0.1:
+        sentiment_label = "Negative"
+    else:
+        sentiment_label = "Neutral"
+
+    # Save the review
     review = ProductReview.objects.create(
-        user=user,
-        product=product,
-        review = request.POST['review'],
-        rating = request.POST['rating'],
-    )
+    user=user,
+    product=product,
+    review=review_text,
+    rating=rating,
+    sentiment=sentiment_label,
+    polarity=sentiment,
+)
 
+    # Attach sentiment to the review (optional: save in DB if you add a field)
     context = {
         'user': user.username,
-        'review': request.POST['review'],
-        'rating': request.POST['rating'],
+        'review': review_text,
+        'rating': rating,
+        'sentiment': sentiment_label,
     }
 
     average_reviews = ProductReview.objects.filter(product=product).aggregate(rating=Avg("rating"))
+    
+    positive_reviews = ProductReview.objects.filter(product=product, sentiment='Positive').count()
+    total_reviews = ProductReview.objects.filter(product=product).count()
+    like_percentage = round((positive_reviews / total_reviews) * 100, 2) if total_reviews else 0
 
-    return JsonResponse(
-        {
-            'bool': True,
-            'context': context,
-            'average_reviews': average_reviews
-        }
-    )
+    return JsonResponse({
+        'bool': True,
+        'context': context,
+        'average_reviews': average_reviews,
+        'like_percentage': like_percentage
+    })
 
 
 
@@ -280,7 +348,7 @@ def add_to_cart(request):
     cart_product[str(request.GET['id'])]  = {
         'title': request.GET['title'],
         'qty':  request.GET['qty'],
-        'price':  request.GET['price'],
+        'price': float(request.GET['price']),
         'image': request.GET['image'],
         'pid': request.GET['pid'],
     }  
@@ -413,7 +481,6 @@ def checkout_view(request):
         active_address = None
     
     return render(request, "core/checkout.html" , {"cart_data": request.session['cart_data_obj'], "totalcartitems": len(request.session['cart_data_obj']) , 'cart_total_amount':cart_total_amount , 'paypal_payment_button':paypal_payment_button, "active_address":active_address } )
-
 
 @login_required
 def payment_completed_view(request):
@@ -603,74 +670,124 @@ def privacy_policy(request):
 def terms_of_service(request):
     return render(request, "core/terms_of_service.html")
 
+def vendor_guide(request):
+    return render(request, "core/vendor_guide.html")
+
+
+def blog_full(request):
+    return render(request, "core/blog_full.html")
+
+
 def chatbot_view(request):
     user_message = request.GET.get("message", "").strip().lower()
     response = handle_user_message(user_message)
-    return JsonResponse(response)
+    return JsonResponse({"reply": response})
 
 
 def handle_user_message(message):
-    cleaned_msg = re.sub(r'[^\w\s\u0600-\u06FF]', '', message)
+    # Clean message (no punctuation)
+    cleaned_msg = re.sub(r'[^\w\s]', '', message)
 
-    # نمط البحث عن السعر
-    price_pattern = r'(سعر|كام|ثمن|تكلفة|قيمة)\s+(.*)'
-    if re.search(price_pattern, cleaned_msg):
-        return handle_price_query(cleaned_msg)
-
-    # نمط البحث عن المنتجات
-    if re.search(r'(المنتجات|عرض|قائمة|ايه|محتويات)', cleaned_msg):
-        return handle_products_query()
-
-    # نمط البحث عن التصنيفات
-    if re.search(r'(التصنيفات|اقسام|انواع|تصنيف)', cleaned_msg):
-        return handle_categories_query()
-
-    # الرد الافتراضي
-    return {
-        "reply": "عذرًا لم أفهم سؤالك. يمكنك طرح أسئلة مثل:<br>"
-                 "- ما هو سعر المنتج X؟<br>"
-                 "- ما هي المنتجات المتاحة؟<br>"
-                 "- ما هي التصنيفات الموجودة؟"
+    # Define intents and their keywords
+    intents = {
+        "price": ["price", "cost", "how much", "worth"],
+        "products": ["products", "show", "list", "available", "have"],
+        "categories": ["categories", "types", "sections", "kinds", "category"]
     }
 
+    # Determine intent
+    for intent, keywords in intents.items():
+        for keyword in keywords:
+            if keyword in cleaned_msg:
+                return intent_handler(intent, cleaned_msg)
 
-def handle_price_query(message):
-    match = re.search(r'(سعر|كام|ثمن|تكلفة|قيمة)\s+(.*)', message)
-    product_name = match.group(2).strip()
+    # Default fallback
+    return (
+        "Sorry, I didn't understand your question. You can ask:<br>"
+        "- What is the price of product X?<br>"
+        "- What products are available?<br>"
+        "- What categories do you have?"
+    )
+
+
+def intent_handler(intent, message):
+    if intent == "price":
+        return get_product_price(message)
+    elif intent == "products":
+        return list_products()
+    elif intent == "categories":
+        return list_categories()
+    return "Intent not recognized."
+
+
+def get_product_price(message):
+    # Try extracting the product name more reliably
+    # Look for common phrases and split after them
+    patterns = [
+        r"(?:how much (?:is|are) )(?P<product>.+)",
+        r"(?:what(?:'s| is) the price of )(?P<product>.+)",
+        r"(?:price of )(?P<product>.+)",
+        r"(?:price )(?P<product>.+)",
+        r"(?:cost of )(?P<product>.+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, message)
+        if match:
+            query = match.group("product").strip()
+            break
+    else:
+        # Fallback to entire message
+        query = message.strip()
+
+    if not query:
+        return "Please specify the product name."
 
     products = Product.objects.filter(
-        Q(title__icontains=product_name) |
-        Q(description__icontains=product_name),
+        Q(title__icontains=query) | Q(description__icontains=query),
         available=True
-    ).distinct()[:3]
+    )[:3]
 
     if not products:
-        return {"reply": f"لم يتم العثور على '{product_name}'. اكتب اسم المنتج بشكل أدق."}
+        return f"No products found matching '{query}'."
 
     if len(products) > 1:
-        product_list = "<br>".join([f"{p.title} - {p.price} جنيه" for p in products])
-        return {"reply": f"وجدت عدة منتجات:<br>{product_list}<br>الرجاء تحديد اسم أدق."}
+        listing = "<br>".join([f"{p.title} - {p.price} EGP" for p in products])
+        return f"Found multiple results:<br>{listing}<br>Please be more specific."
 
-    return {"reply": f"سعر {products[0].title} هو {products[0].price} جنيه 💵"}
+    return f"The price of <b>{products[0].title}</b> is <b>{products[0].price} EGP</b> 💵."
 
-
-def handle_products_query():
+def list_products():
     products = Product.objects.filter(available=True).order_by('-date')[:5]
-    if products:
-        product_list = "<br>- ".join([p.title for p in products])
-        return {"reply": f"أحدث المنتجات:<br>- {product_list}"}
-    return {"reply": "لا توجد منتجات متاحة حالياً."}
+    if not products:
+        return "No available products found."
+    listing = "<br>- " + "<br>- ".join([p.title for p in products])
+    return f"Here are the latest products:{listing}"
 
 
-def handle_categories_query():
+def list_categories():
     categories = Category.objects.all()[:5]
-    if categories:
-        category_list = "<br>- ".join([c.title for c in categories])
-        return {"reply": f"التصنيفات الرئيسية:<br>- {category_list}"}
-    return {"reply": "لا توجد تصنيفات متاحة حالياً."}
+    if not categories:
+        return "No categories found."
+    listing = "<br>- " + "<br>- ".join([c.title for c in categories])
+    return f"Here are some main categories:{listing}"
 
+@login_required
+def clean_cart_view(request):
+    if 'cart_data_obj' in request.session:
+        cleaned_cart = {}
+        for pid, item in request.session['cart_data_obj'].items():
+            try:
+                float(item['price'])  # This will throw ValueError if invalid
+                cleaned_cart[pid] = item
+            except ValueError:
+                print(f"Removed invalid item: {item}")
+        
+        request.session['cart_data_obj'] = cleaned_cart
+        request.session.modified = True
+        return redirect('core:cart')  # or wherever your cart is shown
 
-
+    return redirect('core:index')  # fallback
 
 
 

@@ -18,8 +18,8 @@ $("#commentForm").submit(function(e){
 
             if(res.bool == true){
                 $("#review-res").html("Review added successfully.")
-                $(".hide-comment-form").hide()
-                $(".add-review").hide()
+                // $(".hide-comment-form").hide()
+                // $(".add-review").hide()
 
                 let _html = '<div class="single-comment justify-content-between d-flex mb-30">'
                     _html += '<div class="user justify-content-between d-flex">'
@@ -38,12 +38,32 @@ $("#commentForm").submit(function(e){
                         _html += '<i class="fas fa-star text-warning"></i>'
                     }
 
+                    let sentimentClass = "";
+
+                    if(res.context.sentiment === "Positive"){
+                        sentimentClass = "text-success";  // green
+                    } else if(res.context.sentiment === "Negative"){
+                        sentimentClass = "text-danger";   // red
+                    } else {
+                        sentimentClass = "text-secondary"; // gray
+                    }
+                    
+                    // Update like percentage
+                    $(".product-feedback").html(
+                            `👍 ${res.like_percentage}% of customers liked this product`
+                    );
+                    
+
+
                     _html += '</div>'
                     _html += '<p class="mb-10">'+ res.context.review +'</p>'
+                    _html += `<p class="mb-10 ${sentimentClass}">Sentiment: ${res.context.sentiment}</p>` 
 
                     _html += '</div>'
                     _html += '</div>'
                     _html += '</div>'
+                    
+                    console.log("Sentimentclass:", sentimentClass);
 
                     $(".comment-list").prepend(_html)
 

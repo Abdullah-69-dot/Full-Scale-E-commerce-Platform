@@ -203,10 +203,9 @@
                     <div class="col-xl-3 col-lg-4">
                         <div class="header-info">
                             <ul>
-                                <li><a href="page-about.htlm">About Us</a></li>
-                                <li><a href="page-account.html">My Account</a></li>
-                                <li><a href="shop-wishlist.html">Wishlist</a></li>
-                                <li><a href="shop-order.html">Order Tracking</a></li>
+                                <li><a href="{% url 'core:about_us'%}">About Us</a></li>
+                                <li><a href="{% url 'core:dashboard'%}">My Account</a></li>
+                                <li><a href="{% url 'core:wishlist'%}">Wishlist</a></li>
                             </ul>
                         </div>
                     </div>
@@ -225,42 +224,6 @@
                         <div class="header-info header-info-right">
                             <ul>
                                 <li>Need help? Call Us: <strong class="text-brand"> + 1800 900</strong></li>
-                                <li>
-                                    <a class="language-dropdown-active" href="#">English <i
-                                            class="fi-rs-angle-small-down"></i></a>
-                                    <ul class="language-dropdown">
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-fr.png' %}"
-                                                    alt="" />Français</a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-dt.png' %}"
-                                                    alt="" />Deutsch</a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-ru.png' %}"
-                                                    alt="" />Pусский</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li>
-                                    <a class="language-dropdown-active" href="#">USD <i
-                                            class="fi-rs-angle-small-down"></i></a>
-                                    <ul class="language-dropdown">
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-fr.png' %}"
-                                                    alt="" />INR</a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-dt.png' %}"
-                                                    alt="" />MBP</a>
-                                        </li>
-                                        <li>
-                                            <a href="#"><img src="{% static 'assets/imgs/theme/flag-ru.png' %}"
-                                                    alt="" />EU</a>
-                                        </li>
-                                    </ul>
-                                </li>
                             </ul>
                         </div>
                     </div>
@@ -278,19 +241,12 @@
                             <form action="{% url 'core:search' %}" method="GET">
                                 <select class="select-active">
                                     <option>All Categories</option>
-                                    <option>Milks and Dairies</option>
-                                    <option>Wines & Alcohol</option>
-                                    <option>Clothing & Beauty</option>
-                                    <option>Pet Foods & Toy</option>
-                                    <option>Fast food</option>
-                                    <option>Baking material</option>
-                                    <option>Vegetables</option>
-                                    <option>Fresh Seafood</option>
-                                    <option>Noodles & Rice</option>
-                                    <option>Ice cream</option>
+                                    {% for c in categories %}
+                                        <option>{{ c.title }}</option>
+                                    {% endfor %}
                                 </select>
                                 <input type="text" placeholder="Search for items..." name="q"/>
-                                <button class="fas fa-search" type="submit"></button>
+                                <button class="fa-solid fa-magnifying-glass" type="submit"></button>
                             </form>
                         </div>
                         <div class="header-action-right">
@@ -329,7 +285,7 @@
                                         <img alt="Nest" src="{% static 'assets/imgs/theme/icons/icon-cart.svg' %}" />
                                         <span class="pro-count blue cart-items-count">{{ request.session.cart_data_obj|length }}</span>
                                     </a>
-                                    <a href="shop-cart.html"><span class="lable">Cart</span></a>
+                                    <a href="{% url 'core:cart' %}"><span class="lable">Cart</span></a>
                                     <div class="cart-dropdown-wrap cart-dropdown-hm2">
                                         
                                         <div class="shopping-cart-footer">
@@ -346,29 +302,19 @@
                                         <img class="svgInject" alt="Nest"
                                             src="{% static 'assets/imgs/theme/icons/icon-user.svg' %}" />
                                     </a>
-                                    <a href="page-account.html"><span class="lable ml-0">Account</span></a>
+                                    <a href="{% url 'core:dashboard'%}"><span class="lable ml-0">Account</span></a>
                                     <div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
                                         <ul>
                                             <li>
                                                 <a href="{% url 'core:dashboard'%}"><i class="fi fi-rs-user mr-10"></i>My
                                                     Account</a>
                                             </li>
+                                            
                                             <li>
-                                                <a href="page-account.html"><i
-                                                        class="fi fi-rs-location-alt mr-10"></i>Order Tracking</a>
-                                            </li>
-                                            <li>
-                                                <a href="page-account.html"><i class="fi fi-rs-label mr-10"></i>My
-                                                    Voucher</a>
-                                            </li>
-                                            <li>
-                                                <a href="shop-wishlist.html"><i class="fi fi-rs-heart mr-10"></i>My
+                                                <a href="{% url 'core:wishlist'%}"><i class="fi fi-rs-heart mr-10"></i>My
                                                     Wishlist</a>
                                             </li>
-                                            <li>
-                                                <a href="page-account.html"><i
-                                                        class="fi fi-rs-settings-sliders mr-10"></i>Setting</a>
-                                            </li>
+                                           
                                             {% if request.user.is_authenticated %}
                                             <li>
                                                 <a href="{% url 'userauths:sign-out' %}"><i
@@ -418,40 +364,7 @@
                                     </ul>
                                    
                                 </div>
-                                <div class="more_slide_open" style="display: none">
-                                    <div class="d-flex categori-dropdown-inner">
-                                        <ul>
-                                            <li>
-                                                <a href="shop-grid-right.html"> <img
-                                                        src="{% static 'assets/imgs/theme/icons/icon-1.svg' %}"
-                                                        alt="" />Milks and
-                                                    Dairies</a>
-                                            </li>
-                                            <li>
-                                                <a href="shop-grid-right.html"> <img
-                                                        src="{% static 'assets/imgs/theme/icons/icon-2.svg' %}"
-                                                        alt="" />Clothing &
-                                                    beauty</a>
-                                            </li>
-                                        </ul>
-                                        <ul class="end">
-                                            <li>
-                                                <a href="shop-grid-right.html"> <img
-                                                        src="{% static 'assets/imgs/theme/icons/icon-3.svg' %}"
-                                                        alt="" />Wines &
-                                                    Drinks</a>
-                                            </li>
-                                            <li>
-                                                <a href="shop-grid-right.html"> <img
-                                                        src="{% static 'assets/imgs/theme/icons/icon-4.svg' %}"
-                                                        alt="" />Fresh
-                                                    Seafood</a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="more_categories"><span class="icon"></span> <span class="heading-sm-1">Show
-                                        more...</span></div>
+                             
                             </div>
                         </div>
                         <div class="main-menu main-menu-padding-1 main-menu-lh-2 d-none d-lg-block font-heading">
@@ -524,7 +437,7 @@
                                             <li><a href="{% url 'core:vendor-guide' %}">Vendor Guide</a></li>
                                         </ul>
                                     </li>
-                                        <a href="{% url 'core:blog-category' %}">Blog</a>
+                                        <li><a href="{% url 'core:blog-category' %}">Blog</a></li>
 
                                     
                                 </ul>
@@ -894,54 +807,29 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".1s>
+                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".1s">
                         <h4 class=" widget-title">Company</h4>
                         <ul class="footer-list mb-sm-5 mb-md-0">
-                            <li><a href="#">About Us</a></li>
-                            <li><a href="#">Delivery Information</a></li>
-                            <li><a href="#">Privacy Policy</a></li>
-                            <li><a href="#">Terms &amp; Conditions</a></li>
-                            <li><a href="#">Contact Us</a></li>
-                            <li><a href="#">Support Center</a></li>
-                            <li><a href="#">Careers</a></li>
+                            <li><a href{% url 'core:about_us'%}About Us></a></li>
+                            <li><a href="{% url 'core:privacy_policy'%}">Privacy Policy</a></li>
+                            <li><a href="{% url 'core:contact'%}">Contact Us</a></li>
                         </ul>
                     </div>
                     <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".2s">
                         <h4 class="widget-title">Account</h4>
                         <ul class="footer-list mb-sm-5 mb-md-0">
-                            <li><a href="#">Sign In</a></li>
-                            <li><a href="#">View Cart</a></li>
-                            <li><a href="#">My Wishlist</a></li>
-                            <li><a href="#">Track My Order</a></li>
-                            <li><a href="#">Help Ticket</a></li>
-                            <li><a href="#">Shipping Details</a></li>
-                            <li><a href="#">Compare products</a></li>
+                            <li><a href="{% url 'userauths:sign-in'%}">Sign In</a></li>
+                            <li><a href="{% url 'core:checkout'%}">View Cart</a></li>
+                            <li><a href="{% url 'core:wishlist'%}">My Wishlist</a></li>
                         </ul>
                     </div>
                     <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".3s">
                         <h4 class="widget-title">Corporate</h4>
                         <ul class="footer-list mb-sm-5 mb-md-0">
-                            <li><a href="#">Become a Vendor</a></li>
-                            <li><a href="#">Affiliate Program</a></li>
-                            <li><a href="#">Farm Business</a></li>
-                            <li><a href="#">Farm Careers</a></li>
-                            <li><a href="#">Our Suppliers</a></li>
-                            <li><a href="#">Accessibility</a></li>
-                            <li><a href="#">Promotions</a></li>
+                            <li><a href="{% url 'core:vendor_guide'%}">Become a Vendor</a></li>
                         </ul>
                     </div>
-                    <div class="footer-link-widget col wow animate__animated animate__fadeInUp" data-wow-delay=".4s">
-                        <h4 class="widget-title">Popular</h4>
-                        <ul class="footer-list mb-sm-5 mb-md-0">
-                            <li><a href="#">Milk & Flavoured Milk</a></li>
-                            <li><a href="#">Butter and Margarine</a></li>
-                            <li><a href="#">Eggs Substitutes</a></li>
-                            <li><a href="#">Marmalades</a></li>
-                            <li><a href="#">Sour Cream and Dips</a></li>
-                            <li><a href="#">Tea & Kombucha</a></li>
-                            <li><a href="#">Cheese</a></li>
-                        </ul>
-                    </div>
+
                     <div class="footer-link-widget widget-install-app col wow animate__animated animate__fadeInUp"
                         data-wow-delay=".5s">
                         <h4 class="widget-title">Install App</h4>
@@ -1033,30 +921,50 @@
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<!-- Chatbot Box -->
-<div class="position-fixed bottom-0 end-0 bg-white p-3 rounded shadow-lg" style="width: 350px; height: 500px; overflow: hidden; z-index: 9999;">
-    <h5 class="fw-bold mb-2">Chat with us</h5>
-
-    <!-- Chat content -->
-    <div id="chatBox" class="mb-3 p-2 bg-light rounded border" style="height: 360px; overflow-y: auto;">
-        <!-- الرسائل ستظهر هنا -->
+<!-- Chatbot Container -->
+<div id="chatbotContainer" class="position-fixed bottom-0 end-0 shadow-lg" style="width: 350px; z-index: 9999;">
+    <!-- Header -->
+    <div class="bg-primary text-white d-flex justify-content-between align-items-center p-2 rounded-top" style="cursor: pointer;" onclick="toggleChatbot()">
+        <span class="fw-bold">Chat with us</span>
+        <span id="chatToggleArrow">▼</span>
     </div>
 
-    <!-- User input -->
-    <input type="text" id="userMessage" class="form-control" placeholder="اكتب رسالتك...">
-    <button onclick="sendMessage()" class="btn btn-primary w-100 mt-2">إرسال</button>
+    <!-- Body -->
+    <div id="chatbotBody" class="bg-white p-3 border border-top-0 rounded-bottom" style="display: block;">
+        <!-- Chat box -->
+        <div id="chatBox" class="mb-3 p-2 bg-light rounded border" style="height: 300px; overflow-y: auto;"></div>
+
+        <!-- User input -->
+        <div class="input-group">
+            <input type="text" id="userMessage" class="form-control" placeholder="Type your message..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()" class="btn btn-primary">Send</button>
+        </div>
+    </div>
 </div>
 
-<!-- JavaScript -->
 <script>
+    function toggleChatbot() {
+        const body = document.getElementById("chatbotBody");
+        const arrow = document.getElementById("chatToggleArrow");
+        const visible = body.style.display !== "none";
+        body.style.display = visible ? "none" : "block";
+        arrow.innerText = visible ? "▲" : "▼";
+    }
+
+    function handleEnter(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
     async function sendMessage() {
         const input = document.getElementById('userMessage');
         const message = input.value.trim();
         const chatBox = document.getElementById('chatBox');
-        
+
         if (!message) return;
 
-        // عرض رسالة المستخدم
         chatBox.innerHTML += `
             <div class="d-flex justify-content-end my-1">
                 <div class="bg-primary text-white p-2 rounded" style="max-width: 80%;">
@@ -1064,14 +972,12 @@
                 </div>
             </div>
         `;
-        
         input.value = '';
-        
+
         try {
             const response = await fetch("/chatbot/?message=" + encodeURIComponent(message));
             const data = await response.json();
 
-            // عرض رد البوت
             chatBox.innerHTML += `
                 <div class="d-flex justify-content-start my-1">
                     <div class="bg-light p-2 rounded border" style="max-width: 80%;">
@@ -1079,15 +985,12 @@
                     </div>
                 </div>
             `;
-        } catch (error) {
+        } catch {
             chatBox.innerHTML += `
-                <div class="text-danger p-2">
-                    حدث خطأ في الاتصال
-                </div>
+                <div class="text-danger p-2">❌ An error occurred while connecting</div>
             `;
         }
 
-        // التمرير لأسفل تلقائيًا
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 </script>
